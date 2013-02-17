@@ -10,7 +10,6 @@ gem 'rake', '10.0.2'
 # in production environments by default.
 group :assets do
   gem 'sass-rails',   '~> 3.2.3'
-  gem 'haml-rails'
   gem 'compass-rails'
   # See https://github.com/sstephenson/execjs#readme for more supported runtimes
   gem 'therubyracer', :platforms => :ruby
@@ -18,6 +17,7 @@ group :assets do
   gem 'uglifier', '>= 1.0.3'
 end
 
+ gem 'haml-rails'
 gem 'alchemy'
 gem 'trebuchet', :git => 'git://github.com/Katello/trebuchet.git'
 gem 'debugger'
