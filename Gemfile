@@ -18,8 +18,7 @@ group :assets do
 end
 
 gem 'alchemy'
-#gem 'trebuchet', :git => 'git://github.com/Katello/trebuchet.git'
-gem 'trebuchet', :path => '../trebuchet'
+gem 'trebuchet', :git => 'git://github.com/Katello/trebuchet.git'
 gem 'debugger'
 
 # To use ActiveModel has_secure_password
