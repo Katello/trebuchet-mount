@@ -10,8 +10,7 @@ class SiegeController < ApplicationController
   end
 
   def pull_data
-    system('cd data/debriefs')
-    stdin, stdout, stderr = ::Open3.popen3('git pull')
+    stdin, stdout, stderr = ::Open3.popen3('cd ./data/trebuchet/data/debriefs && git pull')
 
     response = stdout.gets.to_s
 
