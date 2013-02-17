@@ -1,3 +1,5 @@
+require 'open3'
+
 class SiegeController < ApplicationController
   
   def index
@@ -9,7 +11,16 @@ class SiegeController < ApplicationController
 
   def pull_data
     system('cd data/debriefs')
-    system('git pull')
+    stdin, stdout, stderr = ::Open3.popen3('git pull')
+
+    response = stdout.gets.to_s
+
+    if !stderr.gets.nil?
+      response += ' \\n errors: '
+      response += stderr.gets.to_s
+    end
+
+    render :text => response
   end
 
 end
