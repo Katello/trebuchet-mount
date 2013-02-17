@@ -1,0 +1,14 @@
+= content_for(:title) do
+  = 'Trebuchet'
+
+= content_for(:stylesheets_block) do
+  = stylesheet_link_tag 'application'
+
+= content_for(:appname) do
+  = 'Trebuchet'
+
+= content_for(:body) do
+  %section.maincontent
+    = yield :content
+
+= render :template => 'alchemy/layouts/base'

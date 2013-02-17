@@ -1,0 +1,46 @@
+$primary_color: green;
+$static_width: 90%;
+
+@import 'alchemy/components/normalize';
+@import 'alchemy/components/text/text';
+@import 'alchemy/components/forms/forms';
+@import 'alchemy/composites/shell';
+@import 'alchemy/components/chosen';
+@import 'alchemy/components/buttons/buttons';
+
+.maincontent { height: 90% !important; }
+.fl { float: left; }
+.fr { float: right; }
+
+li {
+  word-wrap: break-word;
+}
+
+body { background: white; }
+//select, .chzn-container { width: 200px; margin: 20px 0 0 20px; }
+.logo { 
+  width: 160px; 
+  border-right: 1px solid #CCC; 
+  height: 34px; 
+  margin: 0; 
+  padding: 24px; 
+  display: inline-block; 
+}
+.form { display: inline-block; width: auto; }
+label { padding: 1px; }
+
+#reset_axis {
+  margin-top: 25px;
+  margin-right: 25px;
+}
+
+.legendLabel {
+  padding: 0 5px;
+  width: 75px;
+}
+
+#tooltip {
+  position: absolute;
+  font-weight: bold;
+  color: green;
+}
