@@ -10,7 +10,9 @@ class SiegeController < ApplicationController
   end
 
   def pull_data
-    stdin, stdout, stderr = ::Open3.popen3('cd ./data/trebuchet/data/debriefs && git pull')
+    dir = ENV['OPENSHIFT_DATA_DIR'].nil? ? './data/' : ENV['OPENSHIFT_DATA_DIR']
+    dir += 'trebuchet/'
+    stdin, stdout, stderr = ::Open3.popen3("cd #{dir} && git pull")
 
     response = stdout.gets.to_s
 
