@@ -10,6 +10,14 @@
 // WARNING: THE FIRST BLANK LINE MARKS THE END OF WHAT'S TO BE PROCESSED, ANY BLANK LINE SHOULD
 // GO AFTER THE REQUIRES BELOW.
 
+//= require 'alchemy/jquery/jquery-1.6.2'
+//= require 'alchemy/underscore-1.3.1'
+//= require 'alchemy/jquery/plugins/jquery.tipsy'
+//= require 'alchemy/jquery/plugins/flot-0.7/jquery.flot'
+//= require 'alchemy/jquery/plugins/flot-0.7/jquery.flot.stack'
+//= require 'alchemy/jquery/plugins/flot-0.7/jquery.flot.selection'
+//= require 'alchemy/jquery/plugins/flot-0.7/jquery.flot.crosshair'
+
 
 $(function(){
     var debriefs = [];
