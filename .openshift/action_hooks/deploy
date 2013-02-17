@@ -3,9 +3,3 @@
 # build hook has been run but before the application has been started back
 # up again.  This script gets executed directly, so it could be python, php,
 # ruby, etc.
-
-set -e
-
-cp -rf "$OPENSHIFT_REPO_DIR"data/trebuchet $OPENSHIFT_DATA_DIR
-rm -rf "$OPENSHIFT_REPO_DIR"data/trebuchet
-ln -s "$OPENSHIFT_DATA_DIR"trebuchet "$OPENSHIFT_REPO_DIR"data/trebuchet

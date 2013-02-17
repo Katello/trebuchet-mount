@@ -13,15 +13,15 @@
 //= require 'alchemy/jquery/jquery-1.6.2'
 //= require 'alchemy/underscore-1.3.1'
 //= require 'alchemy/jquery/plugins/jquery.tipsy'
+//= require 'alchemy/jquery/plugins/jquery.ba-bbq'
 //= require 'alchemy/jquery/plugins/flot-0.7/jquery.flot'
 //= require 'alchemy/jquery/plugins/flot-0.7/jquery.flot.stack'
 //= require 'alchemy/jquery/plugins/flot-0.7/jquery.flot.selection'
 //= require 'alchemy/jquery/plugins/flot-0.7/jquery.flot.crosshair'
+//= require 'jquery.flot.hiddengraphs'
 
 
 $(function(){
-    var debriefs = [];
-
 
     function get_debriefs(debrief_name){
         $.ajax({
@@ -34,33 +34,52 @@ $(function(){
         });
     };
 
-    function setup_plot(data){
-        var ticks   = [0],
-            cases   = [],
-            points  = [],
-            placeholder = $('.placeholder'),
+    function setup_plot(debriefs){
+        var placeholder = $('.placeholder'),
             settings,
             latestPosition,
             updateLegendTimeout = null,
             plot,
-            legends;
-
-        debriefs = data;
-
-        function convert_time(number){
-            if( number / 3600 > 1 ){
-                return (number / 3600).toFixed(1) + ' hr';
-            } else if( number / 60 > 1){
-                return (number / 60).toFixed(1) + ' min';
-            } else {
-                return number.toFixed(1) + ' sec';
-            }
-        }
-
-        var stack = false,
+            legends,
+            stack = false,
             bars = true,
             lines = false,
-            steps = false;
+            steps = false,
+            disabled_list = {},
+
+            set_ticks = function(debriefs){
+                var ticks = [];
+
+                _.each(debriefs[0]['data'], function(element, index, list){
+                    ticks.push([list.length - index+1, element['id']]);
+                });
+
+                return ticks;
+            },
+            convert_time = function(number){
+                if( number / 3600 > 1 ){
+                    return (number / 3600).toFixed(1) + ' hr';
+                } else if( number / 60 > 1){
+                    return (number / 60).toFixed(1) + ' min';
+                } else {
+                    return number.toFixed(1) + ' sec';
+                }
+            },
+            generate_data = function(debriefs){
+                var cases = [], points;
+
+                _.each(debriefs, function(debrief, debrief_index, debrief_list){
+                    points  = [];
+
+                    _.each(debrief['data'], function(element, index, list){
+                        points.push([element['performance']['duration'], list.length - index+1]);
+                    });
+
+                    cases.push({ label : debrief['name'], data : points });
+                });
+
+                return cases;
+            };
 
         settings = {
             grid : { 
@@ -73,18 +92,18 @@ $(function(){
             series : { 
                 stack : true,
                 lines : {
-                        show: lines,
-                        fill: true,
-                        steps: steps
-                    },
-                    bars: {
-                        show: bars,
-                        barWidth: 0.5,
-                        horizontal: true
-                    }
+                    show: lines,
+                    fill: true,
+                    steps: steps
+                },
+                bars: {
+                    show: bars,
+                    barWidth: 0.5,
+                    horizontal: true
+                }
             },
             yaxis: {
-                ticks : ticks,
+                ticks : set_ticks(debriefs),
                 alignTicksWithAxis : true,
                 position : 'left'
             }, 
@@ -94,22 +113,11 @@ $(function(){
             xaxis: {
                 position : 'top',
                 tickFormatter : convert_time
+            },
+            legend : {
+                hideable : true
             }
         };
-
-        _.each(debriefs, function(debrief, debrief_index, debrief_list){
-            points  = [];
-
-            _.each(debrief['data'], function(element, index, list){
-                points.push([element['performance']['duration'], list.length - index+1]);
-            });
-
-            cases.push({ label : debrief['name'], data : points });
-        });
-
-        _.each(debriefs[0]['data'], function(element, index, list){
-            ticks.push([list.length - index+1, element['id']]);
-        });
 
         placeholder.bind("plotselected", function (event, ranges) {
 
@@ -122,12 +130,12 @@ $(function(){
                     min: ranges.yaxis.from,
                     max: ranges.yaxis.to
                 }
-            }));
+            }), generate_data(debriefs));
 
         });
 
-        function plot_with_options(options){
-            plot = $.plot(placeholder, cases, options);
+        function plot_with_options(options, data){
+            plot = $.plot(placeholder, data, options);
             legends = placeholder.find(".legendLabel");
 
             legends.each(function () {
@@ -135,7 +143,7 @@ $(function(){
             });
         }
 
-        plot_with_options(settings);
+        plot_with_options(settings, generate_data(debriefs));
 
         function updateLegend() {
             var pos = latestPosition,
@@ -164,13 +172,22 @@ $(function(){
         });
 
         $('#reset_axis').live('click', function(){
-            plot_with_options(settings);
-            plot_with_options(settings);
+            plot_with_options(settings, generate_data(debriefs));
+            plot_with_options(settings, generate_data(debriefs));
         });
+
     }
 
     $('#operation_select').live('change', function(){
+        $.bbq.pushState({ siege : $(this).val() });
         get_debriefs($(this).val());
     });
+
+    var init_state = $.bbq.getState('siege');
+
+    if( init_state !== undefined ){
+        get_debriefs(init_state);
+        $('#operation_select').val(init_state);
+    }
 
 });
