@@ -4,6 +4,9 @@ RailsApp::Application.routes.draw do
   
 
   resources :siege, :only => [:index] do
+    collection do
+      get 'pull_data'
+    end
   end
 
   resources :debrief, :only => [:index] do

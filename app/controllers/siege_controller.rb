@@ -7,4 +7,9 @@ class SiegeController < ApplicationController
     render :locals => { :operations => operations }
   end
 
+  def pull_data
+    system('cd data/debriefs')
+    system('git pull')
+  end
+
 end
