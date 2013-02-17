@@ -1,5 +1,6 @@
-PATH
-  remote: ../trebuchet
+GIT
+  remote: git://github.com/Katello/trebuchet.git
+  revision: 4d55b42b7601dbb8f7435576d381e3ea94ff6203
   specs:
     trebuchet (0.1)
       activesupport (>= 3.0.10)
@@ -60,11 +61,12 @@ GEM
     execjs (1.4.0)
       multi_json (~> 1.0)
     fssm (0.2.10)
-    haml (3.1.8)
-    haml-rails (0.3.5)
+    haml (4.0.0)
+      tilt
+    haml-rails (0.4)
       actionpack (>= 3.1, < 4.1)
       activesupport (>= 3.1, < 4.1)
-      haml (~> 3.1)
+      haml (>= 3.1, < 4.1)
       railties (>= 3.1, < 4.1)
     hike (1.2.1)
     i18n (0.6.1)
@@ -76,8 +78,8 @@ GEM
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
     mime-types (1.21)
-    minitest (4.6.0)
-    multi_json (1.6.0)
+    minitest (4.6.1)
+    multi_json (1.6.1)
     polyglot (0.3.3)
     rack (1.4.5)
     rack-cache (1.2)
@@ -101,7 +103,7 @@ GEM
       rake (>= 0.8.7)
       rdoc (~> 3.4)
       thor (>= 0.14.6, < 2.0)
-    rake (10.0.3)
+    rake (10.0.2)
     rdoc (3.12.1)
       json (~> 1.4)
     ref (1.0.2)
@@ -138,6 +140,7 @@ DEPENDENCIES
   haml-rails
   minitest
   rails (= 3.2.11)
+  rake (= 10.0.2)
   sass-rails (~> 3.2.3)
   therubyracer
   thor (= 0.14.6)
