@@ -1,0 +1,3 @@
+[submodule "data/trebuchet"]
+	path = data/trebuchet
+	url = http://github.com/Katello/trebuchet.git

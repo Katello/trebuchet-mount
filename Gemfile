@@ -17,9 +17,9 @@ group :assets do
   gem 'uglifier', '>= 1.0.3'
 end
 
- gem 'haml-rails'
+gem 'haml-rails'
 gem 'alchemy'
-gem 'trebuchet', :git => 'git://github.com/Katello/trebuchet.git'
+gem 'trebuchet', :path => 'data/trebuchet'
 gem 'debugger'
 
 # To use ActiveModel has_secure_password

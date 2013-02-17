@@ -1,6 +1,5 @@
-GIT
-  remote: git://github.com/Katello/trebuchet.git
-  revision: 4d55b42b7601dbb8f7435576d381e3ea94ff6203
+PATH
+  remote: data/trebuchet
   specs:
     trebuchet (0.1)
       activesupport (>= 3.0.10)
