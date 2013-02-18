@@ -13,11 +13,12 @@ class SiegeController < ApplicationController
     dir = ENV['OPENSHIFT_DATA_DIR'].nil? ? './data/' : ENV['OPENSHIFT_DATA_DIR']
     dir += 'trebuchet/'
     stdin, stdout, stderr = ::Open3.popen3("cd #{dir} && git pull")
+    stdin, stdout, stderr = ::Open3.popen3("cd #{dir} && touch tmp_file")
 
     response = stdout.gets.to_s
 
     if !stderr.gets.nil?
-      response += ' \\n errors: '
+      response += 'errors: '
       response += stderr.gets.to_s
     end
 
