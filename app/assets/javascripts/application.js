@@ -19,8 +19,6 @@
 //= require 'alchemy/jquery/plugins/flot-0.7/jquery.flot.selection'
 //= require 'alchemy/jquery/plugins/flot-0.7/jquery.flot.crosshair'
 //= require 'jquery.flot.hiddengraphs'
-//= require 'base64'
-//= require 'github'
 
 
 $(function(){
