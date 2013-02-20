@@ -3,10 +3,7 @@ RailsApp::Application.routes.draw do
   # first created -> highest priority.
   
 
-  resources :siege, :only => [:index] do
-    collection do
-      get 'pull_data'
-    end
+  resources :siege, :only => [:index, :show] do
   end
 
   resources :debrief, :only => [:index] do

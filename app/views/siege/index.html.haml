@@ -2,7 +2,7 @@
   = javascript_include_tag 'application'
 
 = content_for(:content) do
-  %section{ :style => "width: 100%; height: 80px; background-color: rgb(240, 240, 240); margin: 0; border-bottom: 1px solid rgb(230, 230, 230);" }
+  %section{ :style => "width: 100%; height: 70px; background-color: rgb(240, 240, 240); margin: 0; border-bottom: 1px solid rgb(230, 230, 230);" }
     %h1.logo
       Trebuchet
     .form.labels_top
@@ -16,13 +16,13 @@
             - operations.each do |operation|
               %option{ :value => operation }
                 = operation
-    -#.form.labels_top
+    .form.labels_top
       .control_group.disabled
         .label
           %label
             Select Siege
         .input
-          %select{ :disabled => "disabled" }
+          %select#siege_select{ :disabled => "disabled" }
             %option
               Blah
     %button.primary.fr#reset_axis

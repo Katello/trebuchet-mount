@@ -19,64 +19,88 @@
 //= require 'alchemy/jquery/plugins/flot-0.7/jquery.flot.selection'
 //= require 'alchemy/jquery/plugins/flot-0.7/jquery.flot.crosshair'
 //= require 'jquery.flot.hiddengraphs'
+//= require 'base64'
+//= require 'github'
 
 
 $(function(){
+    var siege_select = function(sieges){
+            var $select = $('#siege_select'),
+                html = '<option value=""></option>';
 
-    function get_debriefs(debrief_name){
+            $select.empty();
+            
+            _.each(sieges, function(element, index, list){
+                html += '<option value="'+ element['name'] +'">' + element['name'] + '</option>'
+            });
+            
+            $select.html(html);
+            $select.removeAttr('disabled');
+            $select.parents('.control_group').removeClass('disabled');
+            //setup_plot();
+        },
+        get_debrief = function(name, operation){
+            $.ajax({
+                url     : '/siege/' + operation,
+                method  : 'get', 
+                dataType: 'json',
+                data    : 'name=' + name + '&operation=' + operation
+            }).done(function(data){
+                setup_plot(data);
+            });
+        };
+
+    function get_sieges(debrief_name){
         $.ajax({
             url     : '/debrief/',
             method  : 'get', 
             dataType: 'json',
             data    : 'name=' + debrief_name
         }).done(function(data){
-            setup_plot(data);
+            siege_select(data);
         });
     };
 
-    function setup_plot(debriefs){
+    function setup_plot(debrief){
         var placeholder = $('.placeholder'),
             settings,
             latestPosition,
             updateLegendTimeout = null,
             plot,
             legends,
-            stack = false,
             bars = true,
             lines = false,
             steps = false,
             disabled_list = {},
 
-            set_ticks = function(debriefs){
+            set_ticks = function(debrief){
                 var ticks = [];
 
-                _.each(debriefs[0]['data'], function(element, index, list){
+                _.each(debrief['data'], function(element, index, list){
                     ticks.push([list.length - index+1, element['id']]);
                 });
 
                 return ticks;
             },
-            convert_time = function(number){
+            convert_time = function(number, precision){
+                precision = (precision === undefined) ? precision : 1;
+
                 if( number / 3600 > 1 ){
-                    return (number / 3600).toFixed(1) + ' hr';
+                    return (number / 3600).toFixed(precision) + ' hr';
                 } else if( number / 60 > 1){
-                    return (number / 60).toFixed(1) + ' min';
+                    return (number / 60).toFixed(precision) + ' min';
                 } else {
-                    return number.toFixed(1) + ' sec';
+                    return number.toFixed(precision) + ' sec';
                 }
             },
-            generate_data = function(debriefs){
-                var cases = [], points;
+            generate_data = function(debrief){
+                var cases = [], points = [];
 
-                _.each(debriefs, function(debrief, debrief_index, debrief_list){
-                    points  = [];
-
-                    _.each(debrief['data'], function(element, index, list){
-                        points.push([element['performance']['duration'], list.length - index+1]);
-                    });
-
-                    cases.push({ label : debrief['name'], data : points });
+                _.each(debrief['data'], function(element, index, list){
+                    points.push([element['performance']['duration'], list.length - index+1]);
                 });
+
+                cases.push({ label : debrief['name'], data : points });
 
                 return cases;
             };
@@ -91,19 +115,15 @@ $(function(){
             },
             series : { 
                 stack : true,
-                lines : {
-                    show: lines,
-                    fill: true,
-                    steps: steps
-                },
                 bars: {
                     show: bars,
                     barWidth: 0.5,
-                    horizontal: true
+                    horizontal: true,
+                    align: 'right'
                 }
             },
             yaxis: {
-                ticks : set_ticks(debriefs),
+                ticks : set_ticks(debrief),
                 alignTicksWithAxis : true,
                 position : 'left'
             }, 
@@ -130,7 +150,7 @@ $(function(){
                     min: ranges.yaxis.from,
                     max: ranges.yaxis.to
                 }
-            }), generate_data(debriefs));
+            }), generate_data(debrief));
 
         });
 
@@ -143,11 +163,11 @@ $(function(){
             });
         }
 
-        plot_with_options(settings, generate_data(debriefs));
+        plot_with_options(settings, generate_data(debrief));
 
         function updateLegend() {
             var pos = latestPosition,
-                value = convert_time(pos.x),
+                value = convert_time(pos.x, 2),
                 axes = plot.getAxes();
 
 
@@ -172,21 +192,28 @@ $(function(){
         });
 
         $('#reset_axis').live('click', function(){
-            plot_with_options(settings, generate_data(debriefs));
-            plot_with_options(settings, generate_data(debriefs));
+            plot_with_options(settings, generate_data(debrief));
+            plot_with_options(settings, generate_data(debrief));
         });
 
     }
 
+    $('#siege_select').live('change', function(){
+        var name      = $(this).val(),
+            operation = $('#operation_select').val();
+
+        get_debrief(name, operation);
+    });
+
     $('#operation_select').live('change', function(){
         $.bbq.pushState({ siege : $(this).val() });
-        get_debriefs($(this).val());
+        get_sieges($(this).val());
     });
 
     var init_state = $.bbq.getState('siege');
 
     if( init_state !== undefined ){
-        get_debriefs(init_state);
+        get_sieges(init_state);
         $('#operation_select').val(init_state);
     }
 

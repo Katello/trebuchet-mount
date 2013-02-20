@@ -1,10 +1,12 @@
 class DebriefController < ApplicationController
   
   def index
-    collection = ::Trebuchet::DebriefCollection.new
     name = params[:name]
-   
-    render :json => collection.get(name)
+
+    github        = Github.new
+    debriefs_list = github.repos.contents.get('Katello', 'trebuchet', 'data/debriefs/' + name)
+
+    render :json => debriefs_list
   end
 
 end

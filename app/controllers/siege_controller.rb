@@ -1,5 +1,3 @@
-require 'open3'
-
 class SiegeController < ApplicationController
   
   def index
@@ -9,20 +7,15 @@ class SiegeController < ApplicationController
     render :locals => { :operations => operations }
   end
 
-  def pull_data
-    dir = ENV['OPENSHIFT_DATA_DIR'].nil? ? './data/' : ENV['OPENSHIFT_DATA_DIR']
-    dir += 'trebuchet/'
-    stdin, stdout, stderr = ::Open3.popen3("cd #{dir} && git pull")
-    stdin, stdout, stderr = ::Open3.popen3("cd #{dir} && touch tmp_file")
+  def show
+    name      = params[:name]
+    operation = params[:operation]
 
-    response = stdout.gets.to_s
+    github  = Github.new
+    siege   = github.repos.contents.get('Katello', 'trebuchet', 'data/debriefs/' + operation + '/' + name)
+    siege   = Base64.decode64(siege.content)
 
-    if !stderr.gets.nil?
-      response += 'errors: '
-      response += stderr.gets.to_s
-    end
-
-    render :text => response
+    render :json => siege
   end
 
 end
