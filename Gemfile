@@ -19,7 +19,7 @@ end
 
 gem 'haml-rails'
 gem 'alchemy'
-gem 'trebuchet', :path => 'data/trebuchet'
+gem 'trebuchet', :git => 'git://github.com/Katello/trebuchet.git'
 gem 'github_api'
 gem 'debugger'
 
