@@ -2,13 +2,18 @@ class SiegeController < ApplicationController
   
   def index
     operation = params[:operation]
-    debriefs_list = @github.repos.contents.get('Katello', 'trebuchet', 'data/debriefs/' + operation)
 
-    sieges = []
+    debriefs_list = Dir.entries(data_dir + '/' + operation).select do |file| 
+      if file != '.' && file != '..' && file != '.gitkeep'
+        true
+      end
+    end
+
+    sieges = {}
     debriefs_list.each do |debrief|
-      siege  = github.repos.contents.get('Katello', 'trebuchet', 'data/debriefs/' + operation + '/' + debrief.name)
-      siege  = Base64.decode64(siege.content)
-      sieges << siege
+      File.open(data_dir + '/' + operation + '/' + debrief, 'r') do |file|
+        sieges[debrief] =  JSON.parse(file.read)
+      end
     end
     
     render :json => sieges
@@ -17,9 +22,11 @@ class SiegeController < ApplicationController
   def show
     name      = params[:name]
     operation = params[:operation]
+    siege     = nil
 
-    siege   = @github.repos.contents.get('Katello', 'trebuchet', 'data/debriefs/' + operation + '/' + name)
-    siege   = Base64.decode64(siege.content)
+    File.open(data_dir + '/' + operation + '/' + name, 'r') do |file|
+      siege = JSON.parse(file.read)
+    end
 
     render :json => siege
   end

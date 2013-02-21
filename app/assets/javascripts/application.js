@@ -22,14 +22,16 @@
 
 
 $(function(){
-    var siege_select = function(sieges){
+    var stored_sieges = {},
+        stored_operations = {},
+        siege_select = function(sieges){
             var $select = $('#siege_select'),
                 html = '<option value=""></option>';
 
             $select.empty();
             
             _.each(sieges, function(element, index, list){
-                html += '<option value="'+ element['name'] +'">' + element['name'] + '</option>'
+                html += '<option value="'+ element +'">' + element + '</option>'
             });
             
             $select.html(html);
@@ -37,14 +39,19 @@ $(function(){
             $select.parents('.control_group').removeClass('disabled');
         },
         get_debrief = function(name, operation){
-            $.ajax({
-                url     : '/siege/' + operation,
-                method  : 'get', 
-                dataType: 'json',
-                data    : 'name=' + name + '&operation=' + operation
-            }).done(function(data){
-                setup_plot(data);
-            });
+            if( stored_sieges[name] ){
+                setup_plot(stored_sieges[name]);
+            } else {
+                $.ajax({
+                    url     : '/siege/' + operation,
+                    method  : 'get', 
+                    dataType: 'json',
+                    data    : 'name=' + name + '&operation=' + operation
+                }).done(function(data){
+                    setup_plot(data);
+                    stored_sieges[name] = data;
+                });
+            }
         },
         get_operations = function(debrief_name){
             $.ajax({
@@ -56,20 +63,25 @@ $(function(){
                 siege_select(data);
             });
         },
-        get_sieges = function(operation){
+        get_sieges = function(operation, id){
             $.ajax({
                 url     : '/siege/',
                 method  : 'get', 
                 dataType: 'json',
                 data    : 'operation=' + operation
             }).done(function(data){
-                var parsed = [];
+                var result = {'data' : []};
 
-                _.each(data, function(element, index, list){
-                    parsed.push($.parseJSON(element));
+                _.each(data, function(value, key, list){
+                    _.each(value['data'], function(datapoint, index, list){
+                        if( id === datapoint['id'] ){
+                            datapoint['id'] = value['name'];
+                            result['data'].push(datapoint);
+                        }
+                    });
                 });
-
-                return parsed;
+                console.log(result);
+                setup_plot(result);
             });
         },
         setup_plot = function(debrief){
@@ -195,11 +207,6 @@ $(function(){
                 }
             });
 
-            $('#reset_axis').live('click', function(){
-                plot_with_options(settings, generate_data(debrief));
-                plot_with_options(settings, generate_data(debrief));
-            });
-            
             plot_with_options(settings, generate_data(debrief));
         };
 
@@ -226,7 +233,14 @@ $(function(){
         var operation = $('#operation_select').val(),
             step      = $(this).html();
 
-        get_sieges(operation);
+        get_sieges(operation, step);
     });
 
+    $('#reset_axis').live('click', function(){
+        var name      = $('#siege_select').val(),
+            operation = $('#operation_select').val();
+
+        get_debrief(name, operation);
+    });
+            
 });

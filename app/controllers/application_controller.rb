@@ -10,4 +10,9 @@ class ApplicationController < ActionController::Base
     #@github = Github.new :oauth_token => token
   end
 
+  def data_dir
+    data_directory = ENV['OPENSHIFT_DATA_DIR'] ? ENV['OPENSHIFT_DATA_DIR'] : Rails.root.to_s + '/data/'
+    data_directory += 'debriefs/'
+  end
+
 end

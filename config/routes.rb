@@ -7,6 +7,9 @@ RailsApp::Application.routes.draw do
   end
 
   resources :debrief, :only => [:index] do
+    collection do
+      get :pull_data
+    end
   end
 
   resources :mount, :only => [:index] do

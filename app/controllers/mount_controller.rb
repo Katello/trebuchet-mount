@@ -1,10 +1,11 @@
 class MountController < ApplicationController
   
   def index
-    github       = Github.new
-    operations   = github.repos.contents.get('Katello', 'trebuchet', 'data/debriefs')
-
-    operations = operations.body.select{ |op| op.name != '.gitkeep' }.map(&:name)
+    operations = Dir.entries(data_dir).select do |file|
+      if file != '.' && file != '..' && file != '.gitkeep'
+        true
+      end
+    end
     
     render :locals => { :operations => operations }
   end

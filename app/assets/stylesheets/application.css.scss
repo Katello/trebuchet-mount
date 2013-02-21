@@ -56,3 +56,7 @@ label { padding: 1px; }
     color: $link_color;
   }
 }
+
+.form select {
+  max-width: 500px;
+}
