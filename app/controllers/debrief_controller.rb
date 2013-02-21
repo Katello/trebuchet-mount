@@ -3,8 +3,7 @@ class DebriefController < ApplicationController
   def index
     name = params[:name]
 
-    github        = Github.new
-    debriefs_list = github.repos.contents.get('Katello', 'trebuchet', 'data/debriefs/' + name)
+    debriefs_list = @github.repos.contents.get('Katello', 'trebuchet', 'data/debriefs/' + name)
 
     render :json => debriefs_list
   end

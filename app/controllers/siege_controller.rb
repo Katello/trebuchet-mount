@@ -1,18 +1,24 @@
 class SiegeController < ApplicationController
   
   def index
-    runner = ::Trebuchet::Runner.new
-    operations = runner.list_operations
+    operation = params[:operation]
+    debriefs_list = @github.repos.contents.get('Katello', 'trebuchet', 'data/debriefs/' + operation)
+
+    sieges = []
+    debriefs_list.each do |debrief|
+      siege  = github.repos.contents.get('Katello', 'trebuchet', 'data/debriefs/' + operation + '/' + debrief.name)
+      siege  = Base64.decode64(siege.content)
+      sieges << siege
+    end
     
-    render :locals => { :operations => operations }
+    render :json => sieges
   end
 
   def show
     name      = params[:name]
     operation = params[:operation]
 
-    github  = Github.new
-    siege   = github.repos.contents.get('Katello', 'trebuchet', 'data/debriefs/' + operation + '/' + name)
+    siege   = @github.repos.contents.get('Katello', 'trebuchet', 'data/debriefs/' + operation + '/' + name)
     siege   = Base64.decode64(siege.content)
 
     render :json => siege

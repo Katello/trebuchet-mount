@@ -48,3 +48,11 @@ label { padding: 1px; }
 .disabled {
   opacity: 0.2;
 }
+
+.tickLabel {
+  cursor: pointer;
+
+  &:hover {
+    color: $link_color;
+  }
+}

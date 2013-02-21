@@ -35,7 +35,6 @@ $(function(){
             $select.html(html);
             $select.removeAttr('disabled');
             $select.parents('.control_group').removeClass('disabled');
-            //setup_plot();
         },
         get_debrief = function(name, operation){
             $.ajax({
@@ -46,155 +45,163 @@ $(function(){
             }).done(function(data){
                 setup_plot(data);
             });
-        };
+        },
+        get_operations = function(debrief_name){
+            $.ajax({
+                url     : '/debrief/',
+                method  : 'get', 
+                dataType: 'json',
+                data    : 'name=' + debrief_name
+            }).done(function(data){
+                siege_select(data);
+            });
+        },
+        get_sieges = function(operation){
+            $.ajax({
+                url     : '/siege/',
+                method  : 'get', 
+                dataType: 'json',
+                data    : 'operation=' + operation
+            }).done(function(data){
+                var parsed = [];
 
-    function get_sieges(debrief_name){
-        $.ajax({
-            url     : '/debrief/',
-            method  : 'get', 
-            dataType: 'json',
-            data    : 'name=' + debrief_name
-        }).done(function(data){
-            siege_select(data);
-        });
-    };
-
-    function setup_plot(debrief){
-        var placeholder = $('.placeholder'),
-            settings,
-            latestPosition,
-            updateLegendTimeout = null,
-            plot,
-            legends,
-            bars = true,
-            lines = false,
-            steps = false,
-            disabled_list = {},
-
-            set_ticks = function(debrief){
-                var ticks = [];
-
-                _.each(debrief['data'], function(element, index, list){
-                    ticks.push([list.length - index+1, element['id']]);
+                _.each(data, function(element, index, list){
+                    parsed.push($.parseJSON(element));
                 });
 
-                return ticks;
-            },
-            convert_time = function(number, precision){
-                precision = (precision === undefined) ? precision : 1;
+                return parsed;
+            });
+        },
+        setup_plot = function(debrief){
+            var placeholder = $('.placeholder'),
+                settings,
+                latestPosition,
+                updateLegendTimeout = null,
+                plot,
+                legends,
+                bars = true,
+                lines = false,
+                steps = false,
+                disabled_list = {},
 
-                if( number / 3600 > 1 ){
-                    return (number / 3600).toFixed(precision) + ' hr';
-                } else if( number / 60 > 1){
-                    return (number / 60).toFixed(precision) + ' min';
-                } else {
-                    return number.toFixed(precision) + ' sec';
-                }
-            },
-            generate_data = function(debrief){
-                var cases = [], points = [];
+                set_ticks = function(debrief){
+                    var ticks = [];
 
-                _.each(debrief['data'], function(element, index, list){
-                    points.push([element['performance']['duration'], list.length - index+1]);
-                });
+                    _.each(debrief['data'], function(element, index, list){
+                        ticks.push([list.length - index+1, element['id']]);
+                    });
 
-                cases.push({ label : debrief['name'], data : points });
+                    return ticks;
+                },
+                convert_time = function(number, precision){
+                    precision = (precision === undefined) ? precision : 1;
 
-                return cases;
-            };
+                    if( number / 3600 > 1 ){
+                        return (number / 3600).toFixed(precision) + ' hr';
+                    } else if( number / 60 > 1){
+                        return (number / 60).toFixed(precision) + ' min';
+                    } else {
+                        return number.toFixed(precision) + ' sec';
+                    }
+                },
+                generate_data = function(debrief){
+                    var cases = [], points = [];
 
-        settings = {
-            grid : { 
-                hoverable : true,
-                autoHighlight : false
-            },
-            crosshair : {
-                mode : "x"
-            },
-            series : { 
-                stack : true,
-                bars: {
-                    show: bars,
-                    barWidth: 0.5,
-                    horizontal: true,
-                    align: 'right'
-                }
-            },
-            yaxis: {
-                ticks : set_ticks(debrief),
-                alignTicksWithAxis : true,
-                position : 'left'
-            }, 
-            selection: {
-                mode: "xy"
-            },
-            xaxis: {
-                position : 'top',
-                tickFormatter : convert_time
-            },
-            legend : {
-                hideable : true
-            }
-        };
+                    _.each(debrief['data'], function(element, index, list){
+                        points.push([element['performance']['duration'], list.length - index+1]);
+                    });
 
-        placeholder.bind("plotselected", function (event, ranges) {
+                    cases.push({ label : debrief['name'], data : points });
 
-            plot_with_options($.extend(true, {}, settings, {
-                xaxis: {
-                    min: ranges.xaxis.from,
-                    max: ranges.xaxis.to
+                    return cases;
+                },
+                plot_with_options = function(options, data){
+                    plot = $.plot(placeholder, data, options);
+                    legends = placeholder.find(".legendLabel");
+
+                    legends.each(function () {
+                        $(this).css('width', $(this).width());
+                    });
+                },
+                updateLegend = function() {
+                    var pos = latestPosition,
+                        value = convert_time(pos.x, 2),
+                        axes = plot.getAxes();
+
+
+                    updateLegendTimeout = null;
+
+                    if (pos.x < axes.xaxis.min || pos.x > axes.xaxis.max ||
+                        pos.y < axes.yaxis.min || pos.y > axes.yaxis.max) {
+                        $('#tooltip').addClass('hidden');
+                    } else {
+                        $('#tooltip').html(value).css({
+                            top : pos.pageY - 15,
+                            left : pos.pageX + 5
+                        }).removeClass('hidden');
+                    }
+                };
+
+            settings = {
+                grid : { 
+                    hoverable : true,
+                    autoHighlight : false
+                },
+                crosshair : {
+                    mode : "x"
+                },
+                series : { 
+                    stack : true,
+                    bars: {
+                        show: bars,
+                        barWidth: 0.5,
+                        horizontal: true,
+                        align: 'right'
+                    }
                 },
                 yaxis: {
-                    min: ranges.yaxis.from,
-                    max: ranges.yaxis.to
+                    ticks : set_ticks(debrief),
+                    alignTicksWithAxis : true,
+                    position : 'left'
+                }, 
+                selection: {
+                    mode: "xy"
+                },
+                xaxis: {
+                    position : 'top',
+                    tickFormatter : convert_time
                 }
-            }), generate_data(debrief));
+            };
 
-        });
+            placeholder.bind("plotselected", function (event, ranges) {
 
-        function plot_with_options(options, data){
-            plot = $.plot(placeholder, data, options);
-            legends = placeholder.find(".legendLabel");
+                plot_with_options($.extend(true, {}, settings, {
+                    xaxis: {
+                        min: ranges.xaxis.from,
+                        max: ranges.xaxis.to
+                    },
+                    yaxis: {
+                        min: ranges.yaxis.from,
+                        max: ranges.yaxis.to
+                    }
+                }), generate_data(debrief));
 
-            legends.each(function () {
-                $(this).css('width', $(this).width());
             });
-        }
 
-        plot_with_options(settings, generate_data(debrief));
+            placeholder.bind("plothover", function (event, pos, item) {
+                latestPosition = pos;
+                if (!updateLegendTimeout) {
+                    updateLegendTimeout = setTimeout(updateLegend, 50);
+                }
+            });
 
-        function updateLegend() {
-            var pos = latestPosition,
-                value = convert_time(pos.x, 2),
-                axes = plot.getAxes();
-
-
-            updateLegendTimeout = null;
-
-            if (pos.x < axes.xaxis.min || pos.x > axes.xaxis.max ||
-                pos.y < axes.yaxis.min || pos.y > axes.yaxis.max) {
-                $('#tooltip').addClass('hidden');
-            } else {
-                $('#tooltip').html(value).css({
-                    top : pos.pageY - 15,
-                    left : pos.pageX + 5
-                }).removeClass('hidden');
-            }
-        }
-
-        placeholder.bind("plothover", function (event, pos, item) {
-            latestPosition = pos;
-            if (!updateLegendTimeout) {
-                updateLegendTimeout = setTimeout(updateLegend, 50);
-            }
-        });
-
-        $('#reset_axis').live('click', function(){
+            $('#reset_axis').live('click', function(){
+                plot_with_options(settings, generate_data(debrief));
+                plot_with_options(settings, generate_data(debrief));
+            });
+            
             plot_with_options(settings, generate_data(debrief));
-            plot_with_options(settings, generate_data(debrief));
-        });
-
-    }
+        };
 
     $('#siege_select').live('change', function(){
         var name      = $(this).val(),
@@ -205,14 +212,21 @@ $(function(){
 
     $('#operation_select').live('change', function(){
         $.bbq.pushState({ siege : $(this).val() });
-        get_sieges($(this).val());
+        get_operations($(this).val());
     });
 
     var init_state = $.bbq.getState('siege');
 
     if( init_state !== undefined ){
-        get_sieges(init_state);
+        get_operations(init_state);
         $('#operation_select').val(init_state);
     }
+
+    $('.tickLabel').live('click', function(){
+        var operation = $('#operation_select').val(),
+            step      = $(this).html();
+
+        get_sieges(operation);
+    });
 
 });

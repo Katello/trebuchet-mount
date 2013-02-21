@@ -8,8 +8,11 @@ RailsApp::Application.routes.draw do
 
   resources :debrief, :only => [:index] do
   end
+
+  resources :mount, :only => [:index] do
+  end
   
-  root :to => 'siege#index'
+  root :to => 'mount#index'
 
   # Sample of regular route:
   #   match 'products/:id' => 'catalog#view'
