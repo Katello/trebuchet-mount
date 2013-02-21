@@ -13,7 +13,7 @@ class DebriefController < ApplicationController
   end
 
   def pull_data
-    operations = @github.repos.contents.get('Katello', 'trebuchet', 'data/debriefs/')
+    operations = @github.repos.contents.get('Katello', 'trebuchet', 'data/debriefs')
     operations = operations.body.select{ |op| op.name != '.gitkeep' }.map(&:name)
 
     operations.each do |op|
@@ -21,7 +21,7 @@ class DebriefController < ApplicationController
     end
 
     operations.each do |op|
-      sieges  = @github.repos.contents.get('Katello', 'trebuchet', 'data/debriefs/' + op + '/')
+      sieges  = @github.repos.contents.get('Katello', 'trebuchet', 'data/debriefs/' + op)
 
       sieges.each do |siege|
         file  = @github.repos.contents.get('Katello', 'trebuchet', 'data/debriefs/' + op + '/' + siege.name)
